@@ -228,12 +228,17 @@ public class Controller {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exporter au format XML");
         chooser.setInitialFileName("data.xml");
-        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("xml", ".xml"));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("XMl file (*.xml)", ".xml"));
         File target = chooser.showSaveDialog(((Node) event.getTarget()).getScene().getWindow());
+
+        if (target == null) {
+            LOGGER.info("Export aborted");
+            return;
+        }
 
         XMLService service = ServiceFactory.getXMLService();
         try {
-            service.writeToFile(target, this.personnesTableView.getItems(), List.of());
+            service.writeToFile(target, this.personnesTableView.getItems(), this.voitureTableView.getItems());
             ImageView logo = getImageView("success-icon.svg");
             logo.setFitHeight(48);
             logo.setFitWidth(48);
@@ -243,7 +248,7 @@ public class Controller {
                     .text("Export des données au format XML réalisé avec succès.")
                     .onAction(e -> {
                         try {
-                            Runtime.getRuntime().exec("explorer.exe /select " + target.getAbsolutePath());
+                            Runtime.getRuntime().exec("explorer.exe /select, \"" + target.getAbsolutePath() + "\"");
                         } catch (IOException ex) {
                             LOGGER.warning("Failed to open file : " + ex.getMessage());
                         }

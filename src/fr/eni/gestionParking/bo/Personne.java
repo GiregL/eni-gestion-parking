@@ -65,6 +65,7 @@ public class Personne implements XMLSerializable<Personne> {
     @Override
     public String toXML() {
         StringBuilder builder = new StringBuilder("<Personne>");
+        builder.append("<ID>").append(this.getId() == null ? "" : this.getId()).append("</ID>");
         builder.append("<Nom>").append(this.nom).append("</Nom>");
         builder.append("<Prenom>").append(this.prenom).append("</Prenom>");
         builder.append("</Personne>");

@@ -2,7 +2,7 @@ package fr.eni.gestionParking.bo;
 
 import java.util.Objects;
 
-public class Voiture {
+public class Voiture implements XMLSerializable<Voiture> {
 
     private Integer id;
     private String nom;
@@ -77,5 +77,21 @@ public class Voiture {
                 "\n\tpi='" + plaqueImmatriculation + '\'' +
                 "\n\tpersonne=" + personne +
                 '}';
+    }
+
+    @Override
+    public String toXML() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("<Voiture>");
+        builder.append("<ID>").append(this.getId() == null ? "" : this.getId()).append("</ID>");
+        builder.append("<Nom>").append(this.getNom()).append("</Nom>");
+        builder.append("<PlaqueImmatriculation>").append(this.getPlaqueImmatriculation()).append("</PlaqueImmatriculation>");
+        builder.append("<Utilisateur>");
+        if (this.isLinked()) {
+            builder.append(this.personne.toXML());
+        }
+        builder.append("</Utilisateur>");
+        builder.append("</Voiture>");
+        return builder.toString();
     }
 }

@@ -37,6 +37,13 @@ public class XMLServiceImpl implements XMLService {
             }
             outputStream.write("</Personnes>".getBytes());
 
+            // Voitures (contenant les personnes)
+            outputStream.write("<Voitures>".getBytes());
+            for (Voiture v : voitures) {
+                outputStream.write(v.toXML().getBytes());
+            }
+            outputStream.write("</Voitures>".getBytes());
+
             outputStream.write("</GestionParking>".getBytes());
         } catch (FileNotFoundException e) {
             LOGGER.log(Level.SEVERE, "[writeToFile] File not found : " + e.getMessage());
