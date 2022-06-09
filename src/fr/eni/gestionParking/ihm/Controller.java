@@ -1,9 +1,11 @@
 package fr.eni.gestionParking.ihm;
 
 import fr.eni.gestionParking.bll.exceptions.BLLException;
+import fr.eni.gestionParking.bll.exceptions.XMLSerializerException;
 import fr.eni.gestionParking.bll.expose.PersonneService;
 import fr.eni.gestionParking.bll.expose.ServiceFactory;
 import fr.eni.gestionParking.bll.expose.VoitureService;
+import fr.eni.gestionParking.bll.expose.XMLService;
 import fr.eni.gestionParking.bo.Personne;
 import fr.eni.gestionParking.bo.Voiture;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,18 +16,26 @@ import javafx.geometry.Side;
 import javafx.scene.Node;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.stage.FileChooser;
 import javafx.util.Callback;
 import javafx.util.StringConverter;
+import org.controlsfx.control.Notifications;
 
+import javax.management.Notification;
 import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.List;
+import java.util.logging.Logger;
 
 public class Controller {
 
+    private static final Logger LOGGER = Logger.getLogger(Controller.class.getSimpleName());
+
     private Personne selectedPersonne;
     private Voiture selectedVoiture;
-    private Personne editSelectedPersonne;
 
     //// Tables
 
@@ -215,7 +225,43 @@ public class Controller {
 
     @FXML
     public void saveToXML(ActionEvent event) {
-        // TODO
+        FileChooser chooser = new FileChooser();
+        chooser.setTitle("Exporter au format XML");
+        chooser.setInitialFileName("data.xml");
+        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("xml", ".xml"));
+        File target = chooser.showSaveDialog(((Node) event.getTarget()).getScene().getWindow());
+
+        XMLService service = ServiceFactory.getXMLService();
+        try {
+            service.writeToFile(target, this.personnesTableView.getItems(), List.of());
+            ImageView logo = getImageView("success-icon.svg");
+            logo.setFitHeight(48);
+            logo.setFitWidth(48);
+            Notifications.create()
+                    .graphic(logo)
+                    .title("Export au format XML")
+                    .text("Export des données au format XML réalisé avec succès.")
+                    .onAction(e -> {
+                        try {
+                            Runtime.getRuntime().exec("explorer.exe /select " + target.getAbsolutePath());
+                        } catch (IOException ex) {
+                            LOGGER.warning("Failed to open file : " + ex.getMessage());
+                        }
+                    })
+                    .show();
+            LOGGER.info("[saveToXML] - Export done.");
+        } catch (XMLSerializerException e) {
+            ImageView logo = getImageView("error-icon.png");
+            logo.setFitHeight(48);
+            logo.setFitWidth(48);
+            Notifications.create()
+                    .graphic(logo)
+                    .title("Export au format XML")
+                    .text("Erreur lors de l'export des données au format XML.")
+                    .show();
+            LOGGER.severe("[saveToXML] Failed to export data.");
+            throw new RuntimeException(e);
+        }
     }
 
     // Voitures
@@ -373,5 +419,15 @@ public class Controller {
         } catch (BLLException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    //
+    //      Others
+    //
+
+    private ImageView getImageView(String name) {
+        InputStream input = getClass().getClassLoader().getResourceAsStream("images/" + name);
+        Image image = new Image(input);
+        return new ImageView(image);
     }
 }

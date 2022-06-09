@@ -5,7 +5,7 @@ import java.util.Objects;
 /**
  * Représentation d'une Personne
  */
-public class Personne {
+public class Personne implements XMLSerializable<Personne> {
 
     private Integer id;
     private String nom;
@@ -60,5 +60,14 @@ public class Personne {
     @Override
     public String toString() {
         return this.getNom() + " " + this.getPrenom();
+    }
+
+    @Override
+    public String toXML() {
+        StringBuilder builder = new StringBuilder("<Personne>");
+        builder.append("<Nom>").append(this.nom).append("</Nom>");
+        builder.append("<Prenom>").append(this.prenom).append("</Prenom>");
+        builder.append("</Personne>");
+        return builder.toString();
     }
 }

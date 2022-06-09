@@ -2,6 +2,7 @@ package fr.eni.gestionParking.bll.expose;
 
 import fr.eni.gestionParking.bll.services.PersonneServiceImpl;
 import fr.eni.gestionParking.bll.services.VoitureServiceImpl;
+import fr.eni.gestionParking.bll.services.XMLServiceImpl;
 
 public class ServiceFactory {
 
@@ -11,6 +12,10 @@ public class ServiceFactory {
 
     public static VoitureService getVoitureService() {
         return VoitureServiceImpl.getInstance();
+    }
+
+    public static XMLService getXMLService() {
+        return XMLServiceImpl.getInstance();
     }
 
 }
