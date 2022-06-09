@@ -1,0 +1,11 @@
+.context-menu {
+    -fx-background-color: red;
+}
+
+.menu-item {
+    -fx-background-color: red;
+}
+
+.menu-item:focused {
+    -fx-background-color: red;
+}
