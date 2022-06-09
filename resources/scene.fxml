@@ -7,6 +7,7 @@
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -83,14 +84,38 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="nomVoitureField" prefHeight="66.0" prefWidth="361.0" GridPane.columnIndex="1" />
-                        <TextField fx:id="plaqueImmatField" prefHeight="69.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="nomVoitureField" prefHeight="66.0" prefWidth="361.0" GridPane.columnIndex="1">
+                           <tooltip>
+                              <Tooltip text="Nom de la voiture">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
+                        </TextField>
+                        <TextField fx:id="plaqueImmatField" prefHeight="69.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <tooltip>
+                              <Tooltip text="Plaque d'immatriculation au format Français">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
+                        </TextField>
                         <Label alignment="CENTER_RIGHT" prefHeight="77.0" prefWidth="328.0" text="Nom de la personne" GridPane.rowIndex="2">
                            <font>
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <ComboBox fx:id="personnePicker" prefHeight="72.0" prefWidth="392.0" promptText="Aucune sélection" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <ComboBox fx:id="personnePicker" prefHeight="72.0" prefWidth="392.0" promptText="Aucune sélection" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                           <tooltip>
+                              <Tooltip text="Nom de l'utilisateur de la voiture">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
+                        </ComboBox>
                      </children>
                      <VBox.margin>
                         <Insets bottom="10.0" />
@@ -148,8 +173,24 @@
                               <Font size="14.0" />
                            </font>
                         </Label>
-                        <TextField fx:id="nomPersonneField" prefHeight="66.0" prefWidth="361.0" GridPane.columnIndex="1" />
-                        <TextField fx:id="prenomPersonneField" prefHeight="69.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <TextField fx:id="nomPersonneField" prefHeight="66.0" prefWidth="361.0" GridPane.columnIndex="1">
+                           <tooltip>
+                              <Tooltip text="Nom de la personne">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
+                        </TextField>
+                        <TextField fx:id="prenomPersonneField" prefHeight="69.0" prefWidth="343.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                           <tooltip>
+                              <Tooltip text="Prénom de la personne">
+                                 <font>
+                                    <Font size="14.0" />
+                                 </font>
+                              </Tooltip>
+                           </tooltip>
+                        </TextField>
                      </children>
                      <VBox.margin>
                         <Insets bottom="10.0" />

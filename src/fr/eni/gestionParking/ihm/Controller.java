@@ -123,6 +123,15 @@ public class Controller {
             if (newSelection != null) {
                 this.selectedPersonne = newSelection;
                 this.setPersonneFields(this.selectedPersonne);
+                try {
+                    if (ServiceFactory.getPersonneService().getPersonneVoiture(this.selectedPersonne).size() != 0) {
+                        this.supprimerPersonneButton.setDisable(true);
+                    } else {
+                        this.supprimerPersonneButton.setDisable(false);
+                    }
+                } catch (BLLException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
     }

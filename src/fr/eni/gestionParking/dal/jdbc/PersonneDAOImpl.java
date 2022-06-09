@@ -11,8 +11,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class PersonneDAOImpl implements PersonneDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(PersonneDAOImpl.class.getSimpleName());
 
     private static final String GET_BY_ID = "SELECT * FROM Personne WHERE id = ?";
     private static final String GET_ALL = "SELECT * FROM Personne";
@@ -33,6 +37,7 @@ public class PersonneDAOImpl implements PersonneDAO {
              PreparedStatement stmt = conn.prepareStatement(GET_BY_ID)) {
 
             if (id == null) {
+                LOGGER.log(Level.WARNING, "[getByID] - given parameter id should not be null");
                 throw new PersonneDAOException("ID cannot be null");
             }
 
@@ -45,6 +50,7 @@ public class PersonneDAOImpl implements PersonneDAO {
                 return Optional.empty();
             }
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[getByID] - error in request : " + e.getMessage());
             throw new PersonneDAOException("DAL - " + e.getMessage());
         }
     }
@@ -62,6 +68,7 @@ public class PersonneDAOImpl implements PersonneDAO {
                 result.add(ofResultSet(resultSet));
             }
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[getAll] - error in request : " + e.getMessage());
             throw new PersonneDAOException("DAL - " + e.getMessage());
         }
 
@@ -71,6 +78,7 @@ public class PersonneDAOImpl implements PersonneDAO {
     @Override
     public boolean update(Personne personne) throws PersonneDAOException, PersonneIdNullException {
         if (personne.getId() == null) {
+            LOGGER.log(Level.WARNING, "[update] - given parameter personne's id should not be null");
             throw new PersonneIdNullException("Personne id cannot be null");
         }
 
@@ -82,20 +90,24 @@ public class PersonneDAOImpl implements PersonneDAO {
 
             return stmt.executeUpdate() == 1;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[update] - error in request : " + e.getMessage());
             throw new PersonneDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public boolean delete(Personne personne) throws PersonneDAOException, PersonneIdNullException {
-        if (personne.getId() == null)
+        if (personne.getId() == null) {
+            LOGGER.log(Level.WARNING, "[delete] - given parameter personne's id should not be null");
             throw new PersonneIdNullException("Personne id cannot be null");
+        }
 
         try (Connection conn = ConnectionFactory.getConnection();
             PreparedStatement stmt = conn.prepareStatement(DELETE)) {
             stmt.setInt(1, personne.getId());
             return stmt.executeUpdate() == 1;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[delete] - error in request : " + e.getMessage());
             throw new PersonneDAOException("DAL - " + e.getMessage());
         }
     }
@@ -103,6 +115,7 @@ public class PersonneDAOImpl implements PersonneDAO {
     @Override
     public boolean insert(Personne personne) throws PersonneAlreadyExistsException, PersonneDAOException {
         if (personne.getId() != null) {
+            LOGGER.log(Level.WARNING, "[insert] - given parameter personne's id is already set");
             throw new PersonneAlreadyExistsException("DAL - The given Personne already have an ID");
         }
 
@@ -120,6 +133,7 @@ public class PersonneDAOImpl implements PersonneDAO {
 
             return affected == 1;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[insert] - error in request : " + e.getMessage());
             throw new PersonneDAOException("DAL - " + e.getMessage());
         }
     }

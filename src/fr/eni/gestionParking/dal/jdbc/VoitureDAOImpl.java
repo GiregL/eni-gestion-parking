@@ -16,8 +16,12 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class VoitureDAOImpl implements VoitureDAO {
+
+    private static final Logger LOGGER = Logger.getLogger(VoitureDAOImpl.class.getSimpleName());
 
     private static final String GET_BY_ID = "SELECT * FROM Voiture WHERE id = ?";
     private static final String GET_ALL = "SELECT * FROM Voiture";
@@ -46,8 +50,10 @@ public class VoitureDAOImpl implements VoitureDAO {
 
     @Override
     public Optional<Voiture> getById(Integer id) throws VoitureDAOException {
-        if (id == null)
+        if (id == null) {
+            LOGGER.log(Level.WARNING, "[getById] - given parameter id should not be null");
             throw new VoitureDAOException("ID cannot be null");
+        }
 
         try (Connection conn = ConnectionFactory.getConnection();
             PreparedStatement stmt = conn.prepareStatement(GET_BY_ID)) {
@@ -62,6 +68,7 @@ public class VoitureDAOImpl implements VoitureDAO {
             }
 
         } catch (ConnectionException | SQLException | PersonneDAOException e) {
+            LOGGER.log(Level.SEVERE, "[getById] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
@@ -78,6 +85,7 @@ public class VoitureDAOImpl implements VoitureDAO {
                 voitures.add(ofResultSet(resultSet));
             }
         } catch (ConnectionException | SQLException | PersonneDAOException e) {
+            LOGGER.log(Level.SEVERE, "[getAll] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
 
@@ -86,7 +94,8 @@ public class VoitureDAOImpl implements VoitureDAO {
 
     @Override
     public boolean update(Voiture voiture) throws VoitureDAOException, VoitureIdNullException {
-        if (voiture.getId() == null) {
+        if (voiture != null && voiture.getId() == null) {
+            LOGGER.log(Level.WARNING, "[update] - given parameter voiture and voiture's id should not be null");
             throw new VoitureIdNullException("ID cannot be null");
         }
 
@@ -103,13 +112,15 @@ public class VoitureDAOImpl implements VoitureDAO {
 
             return stmt.executeUpdate() == 1;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[update] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public boolean delete(Voiture voiture) throws VoitureDAOException, VoitureIdNullException {
-        if (voiture.getId() == null) {
+        if (voiture != null && voiture.getId() == null) {
+            LOGGER.log(Level.WARNING, "[delete] - given parameter voiture and voiture's id should not be null");
             throw new VoitureIdNullException("ID cannot be null");
         }
 
@@ -119,13 +130,15 @@ public class VoitureDAOImpl implements VoitureDAO {
 
             return stmt.executeUpdate() == 1;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[delete] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public boolean insert(Voiture voiture) throws VoitureAlreadyExistsException, VoitureDAOException {
-        if (voiture.getId() != null) {
+        if (voiture != null && voiture.getId() != null) {
+            LOGGER.log(Level.WARNING, "[insert] - given parameter voiture and voiture's id should not be null");
             throw new VoitureAlreadyExistsException("ID cannot be null");
         }
 
@@ -153,17 +166,22 @@ public class VoitureDAOImpl implements VoitureDAO {
             }
             return result;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[insert] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public boolean linkPersonne(Voiture voiture, Personne personne) throws PersonneIdNullException, VoitureIdNullException, VoitureDAOException {
-        if (voiture.getId() == null)
+        if (voiture != null && voiture.getId() == null) {
+            LOGGER.log(Level.WARNING, "[linkpersonne] - given parameter voiture and voiture's id should not be null");
             throw new VoitureIdNullException("DAL - Voiture id cannot be null");
+        }
 
-        if (personne.getId() == null)
+        if (personne != null && personne.getId() == null) {
+            LOGGER.log(Level.WARNING, "[linkpersonne] - given parameter personne and personne's id should not be null");
             throw new PersonneIdNullException("DAL - Personne id cannot be null");
+        }
 
         try (Connection conn = ConnectionFactory.getConnection();
             PreparedStatement stmt = conn.prepareStatement(LINK)) {
@@ -177,14 +195,17 @@ public class VoitureDAOImpl implements VoitureDAO {
 
             return result;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[linkPersonne] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public boolean unlinkPersonne(Voiture voiture) throws VoitureIdNullException, VoitureDAOException {
-        if (voiture.getId() == null)
+        if (voiture != null && voiture.getId() == null) {
+            LOGGER.log(Level.WARNING, "[unlinkPersonne] - given parameter voiture and voiture's id should not be null");
             throw new VoitureIdNullException("DAL - Voiture id cannot be null");
+        }
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(UNLINK)) {
@@ -196,13 +217,16 @@ public class VoitureDAOImpl implements VoitureDAO {
             }
             return result;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[unlinkPersonne] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     public boolean isLinked(Voiture voiture) throws VoitureIdNullException, PersonneIdNullException, VoitureDAOException {
-        if (voiture.getId() == null)
+        if (voiture != null && voiture.getId() == null) {
+            LOGGER.log(Level.WARNING, "[isLinked] - given parameter voiture and voiture's id should not be null");
             throw new VoitureIdNullException("DAL - Voiture id cannot be null");
+        }
 
         try (Connection conn = ConnectionFactory.getConnection();
              PreparedStatement stmt = conn.prepareStatement(IS_LINKED)) {
@@ -214,14 +238,17 @@ public class VoitureDAOImpl implements VoitureDAO {
             }
             return false;
         } catch (ConnectionException | SQLException e) {
+            LOGGER.log(Level.SEVERE, "[isLinked] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
     }
 
     @Override
     public List<Voiture> getCarsOf(Personne personne) throws PersonneIdNullException, VoitureDAOException {
-        if (personne == null || personne.getId() == null)
+        if (personne == null || personne.getId() == null) {
+            LOGGER.log(Level.WARNING, "[getCarsOf] - given parameter personne and personne's id should not be null");
             throw new PersonneIdNullException();
+        }
 
         List<Voiture> voitures = new ArrayList<>();
         try (Connection conn = ConnectionFactory.getConnection();
@@ -233,6 +260,7 @@ public class VoitureDAOImpl implements VoitureDAO {
                 voitures.add(ofResultSet(resultSet));
             }
         } catch (ConnectionException | SQLException | PersonneDAOException e) {
+            LOGGER.log(Level.SEVERE, "[getCarsOf] - error: " + e.getMessage());
             throw new VoitureDAOException("DAL - " + e.getMessage());
         }
         return voitures;
