@@ -1,8 +1,6 @@
 package fr.eni.gestionParking.bll.expose;
 
-import fr.eni.gestionParking.bll.services.PersonneServiceImpl;
-import fr.eni.gestionParking.bll.services.VoitureServiceImpl;
-import fr.eni.gestionParking.bll.services.XMLServiceImpl;
+import fr.eni.gestionParking.bll.services.*;
 
 public class ServiceFactory {
 
@@ -16,6 +14,14 @@ public class ServiceFactory {
 
     public static XMLService getXMLService() {
         return XMLServiceImpl.getInstance();
+    }
+
+    public static CSVService getCSVService() {
+        return CSVServiceImpl.getInstance();
+    }
+
+    public static PersonneVoitureService getPersonneVoitureService() {
+        return PersonneVoitureServiceImpl.getInstance();
     }
 
 }

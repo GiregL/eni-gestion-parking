@@ -2,15 +2,13 @@ package fr.eni.gestionParking.ihm;
 
 import fr.eni.gestionParking.bll.exceptions.BLLException;
 import fr.eni.gestionParking.bll.exceptions.XMLSerializerException;
-import fr.eni.gestionParking.bll.expose.PersonneService;
-import fr.eni.gestionParking.bll.expose.ServiceFactory;
-import fr.eni.gestionParking.bll.expose.VoitureService;
-import fr.eni.gestionParking.bll.expose.XMLService;
+import fr.eni.gestionParking.bll.expose.*;
 import fr.eni.gestionParking.bo.Personne;
 import fr.eni.gestionParking.bo.Voiture;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.event.ActionEvent;
+import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.geometry.Side;
 import javafx.scene.Node;
@@ -209,6 +207,34 @@ public class Controller {
         this.voitureTableView.getItems().addAll(ServiceFactory.getVoitureService().getAll());
     }
 
+    private void showNotification(String icon, String title, String message, EventHandler<ActionEvent> handler) {
+        ImageView logo = getImageView(icon);
+        logo.setFitHeight(48);
+        logo.setFitWidth(48);
+        Notifications.create()
+                .graphic(logo)
+                .title(title)
+                .text(message)
+                .onAction(handler)
+                .show();
+    }
+
+    private void showErrorNotification(String title, String message) {
+        showErrorNotification(title, message, e -> {});
+    }
+
+    private void showErrorNotification(String title, String message, EventHandler<ActionEvent> handler) {
+        showNotification("error-icon.png", title, message, handler);
+    }
+
+    private void showSuccessNotification(String title, String message) {
+        showSuccessNotification(title, message, e -> {});
+    }
+
+    private void showSuccessNotification(String title, String message, EventHandler<ActionEvent> handler) {
+        showNotification("success-icon.svg", title, message, handler);
+    }
+
     //// ---------------------------------------------------------------------------------------------------------------
     //// Handlers
     //// ---------------------------------------------------------------------------------------------------------------
@@ -218,9 +244,28 @@ public class Controller {
         FileChooser chooser = new FileChooser();
         chooser.setTitle("Exporter au format CSV");
         chooser.setInitialFileName("data.csv");
-        chooser.setSelectedExtensionFilter(new FileChooser.ExtensionFilter("data", ".csv"));
+        chooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("CSV file (*.csv)", ".csv"));
         File target = chooser.showSaveDialog(((Node) event.getTarget()).getScene().getWindow());
-        // TODO
+
+        if (target == null) {
+            LOGGER.info("Export aborted");
+            return;
+        }
+
+        CSVService service = ServiceFactory.getCSVService();
+        try {
+            service.writeToFile(target);
+            showSuccessNotification("Export CSV", "Export des données au format CSV réalisé avec succès.", e -> {
+                try {
+                    Runtime.getRuntime().exec("explorer.exe /select, \"" + target.getAbsolutePath() + "\"");
+                } catch (IOException ex) {
+                    LOGGER.warning("Failed to open file : " + ex.getMessage());
+                }
+            });
+        } catch (BLLException e) {
+            showErrorNotification("Export CSV", "Erreur lors de l'export des données au format CSV.\n" + e.getMessage());
+            LOGGER.severe("[saveToXML] Failed to export data : " + e.getMessage());
+        }
     }
 
     @FXML
@@ -239,33 +284,17 @@ public class Controller {
         XMLService service = ServiceFactory.getXMLService();
         try {
             service.writeToFile(target, this.personnesTableView.getItems(), this.voitureTableView.getItems());
-            ImageView logo = getImageView("success-icon.svg");
-            logo.setFitHeight(48);
-            logo.setFitWidth(48);
-            Notifications.create()
-                    .graphic(logo)
-                    .title("Export au format XML")
-                    .text("Export des données au format XML réalisé avec succès.")
-                    .onAction(e -> {
-                        try {
-                            Runtime.getRuntime().exec("explorer.exe /select, \"" + target.getAbsolutePath() + "\"");
-                        } catch (IOException ex) {
-                            LOGGER.warning("Failed to open file : " + ex.getMessage());
-                        }
-                    })
-                    .show();
+            showSuccessNotification("Export au format XML", "Export des données au format XML réalisé avec succès", e -> {
+                try {
+                    Runtime.getRuntime().exec("explorer.exe /select, \"" + target.getAbsolutePath() + "\"");
+                } catch (IOException ex) {
+                    LOGGER.warning("Failed to open file : " + ex.getMessage());
+                }
+            });
             LOGGER.info("[saveToXML] - Export done.");
         } catch (XMLSerializerException e) {
-            ImageView logo = getImageView("error-icon.png");
-            logo.setFitHeight(48);
-            logo.setFitWidth(48);
-            Notifications.create()
-                    .graphic(logo)
-                    .title("Export au format XML")
-                    .text("Erreur lors de l'export des données au format XML.")
-                    .show();
-            LOGGER.severe("[saveToXML] Failed to export data.");
-            throw new RuntimeException(e);
+            showErrorNotification("Export au format CSV", "Erreur lors de l'export des données au format XML.\n" + e.getMessage());
+            LOGGER.severe("[saveToXML] Failed to export data : " + e.getMessage());
         }
     }
 

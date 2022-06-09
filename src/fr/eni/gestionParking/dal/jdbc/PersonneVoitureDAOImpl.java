@@ -42,11 +42,22 @@ public class PersonneVoitureDAOImpl implements PersonneVoitureDAO {
                 Personne personne = null;
                 Voiture voiture = null;
 
+                if (personneId != null && personneNom != null && personnePrenom != null) {
+                    personne = new Personne(personneId, personneNom, personnePrenom);
+                }
+
+                if (voitureId != null && voitureNom != null && voiturePlaque != null) {
+                    voiture = new Voiture(voitureId, voitureNom, voiturePlaque, null);
+                }
+
+                if (voiture != null && voitureUtilisateurId != null && personne != null && voitureUtilisateurId.equals(personne.getId())) {
+                    voiture.setPersonne(personne);
+                }
 
                 if (personne == null && voiture == null) {
                     LOGGER.warning("[fullJoin] ");
                 }
-                result.add(new Pair(personne, voiture));
+                result.add(new Pair<>(personne, voiture));
             }
 
             return result;
